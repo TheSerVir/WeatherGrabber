@@ -1,0 +1,438 @@
+<html>
+  <head>
+    <title>Погода KitSpit</title>
+	<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+	<link href="main.css" rel="stylesheet">
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+  <script src="jquery.mousewheel.min.js"></script>
+  <script>
+    $(function () {
+        var next = "find";
+        var back = "weather";
+        var nadpis = "Я закончил";
+		var sdvig = 400;
+		var k = 200/sdvig*4;
+		var nowDay = 2;
+        
+        $("#add-city").click(function () {
+            $("."+back).fadeOut(400);
+            $("."+next).delay(500).fadeIn(400);
+            $("#help").toggle();
+            //$(".find, .weather").toggle("fade", {}, 400);
+            var temp = next;
+            next = back;
+            back = temp;
+            
+            if($(".top:first").attr("class").indexOf("del-vis")+1)
+                $(".top:first").removeClass("del-vis");
+            else
+                $(".top:first").addClass("del-vis");
+            
+            temp = $(this).text();
+            $(this).text(nadpis);
+            nadpis = temp;
+			
+			$("#search-input").focus();
+            
+            $(".arrow").toggle();
+        });
+        
+        $(".arrow:last").click(function (e) {
+			var minisdvig = sdvig;
+            var sdvig2 = -screen.width/2;
+			
+            var goto = $("ul.weather").position().left+sdvig2;
+
+            if(-goto <= $("ul.weather").width()-k*minisdvig)
+                $("ul.weather").css("left", goto);
+            else
+                $("ul.weather").css("left", -($("ul.weather").width()/minisdvig).toFixed(0)*minisdvig+k*minisdvig);
+            
+            e.preventDefault();
+        });
+        
+        $(".arrow:first").click(function (e) {
+            var sdvig = screen.width/2;
+            var goto = $("ul.weather").position().left+sdvig;
+
+            if(goto <= 0)
+                $("ul.weather").css("left", goto);
+            else
+                $("ul.weather").css("left", 0);
+            
+            e.preventDefault();
+        });
+        
+        $(".del").click(function (e) {
+            $(this).parent().remove(); 
+            e.preventDefault();
+        });
+        
+        $("ul.weather li a").click(function(e) {
+            var i = parseInt($(this).parent().attr("id"));
+            if(i > 1) {
+                goto(i);
+            }
+			nowDay = i;
+            e.preventDefault();
+        });
+        
+        function goto(i) {
+            $("li").removeClass('active');
+            $("#"+i).addClass('active');
+            $("ul.weather").css("left","-"+(15*i-15*2)+"rem");
+        }
+        
+        $("#city").click(function () {
+           goto(2); 
+        });
+        
+        $( "ul.weather" ).draggable({ 
+            axis: "x", 
+            stop: function (e, ui) {
+                var left = $("ul.weather").position().left;
+                
+                if(left > 0)
+                    $("ul.weather").css("left", 0);
+                else if(-left >= $("ul.weather").width()-k*sdvig)
+                    $("ul.weather").css("left", -($("ul.weather").width()/sdvig).toFixed(0)*sdvig+k*sdvig);
+            }
+        });
+        
+        $("body").mousewheel(function (event, delta) {
+            var goto = $("ul.weather").position().left+(event.deltaY*(sdvig));
+            
+            if(goto <= 0)
+                if(-goto <= $("ul.weather").width()-k*sdvig)
+                    $("ul.weather").css("left", goto);
+                else
+                    $("ul.weather").css("left", -($("ul.weather").width()/sdvig).toFixed(0)*sdvig+k*sdvig);
+            else
+                $("ul.weather").css("left", 0);
+        });
+		
+		$("body").keyup(function(e) {
+			switch(e.which) {
+				case 37:
+					if(nowDay-1 > 1) {
+						goto(nowDay-1);
+						nowDay--;
+					}
+				break;
+				case 39:
+					if(nowDay+1 <= $("ul.weather").children("li").length) {
+						goto(nowDay+1);
+						nowDay++;
+					}
+				break;
+			}
+		});
+    });
+  </script>
+  </head>
+  
+<body class="day night">
+<header>
+<p class="cefa"><span>°C</span> / <a href="/">°F</a></p>
+<h2><img src="logo.png"><span>Погода</span></h2>
+<div class="main">
+<div class="top ">
+<!--
+После нажатия на Добавить город
+del-vis
+-->
+<ul>
+<li><a href="#">Старый Салтов</a><a class="del" href="">&times;</a></li>
+<li><a href="#">Харьков</a><a class="del" href="">&times;</a></li>
+<li><a href="#">Киев</a><a class="del" href="">&times;</a></li>
+<li><a href="#" id="add-city">+ Добавить город</a></li>
+<!--
+<li><input class="search" type="text" placeholder="Введите название"><span><a href="/">Волчанск</a><a href="/">Вошанськ</a><a href="/">Воркута</a></span></li>
+-->
+</ul>
+</div>
+
+
+<h1 class="weather"><a style="top:10px;" href="#" id="city">Харьков</a></h1>
+<h1 class="find" style="display:none;"><input class="search" type="text" id="search-input" placeholder="Введите название"></h1>
+</div>
+</header>
+ 
+ 
+<div class="arrow" style="left:0;">
+<img style="margin:auto; width:40px;" src="arrow2.png">
+</div>
+
+<div class="arrow" style="right:0;">
+<img style="" src="arrow.png">
+</div>
+
+ 
+<content>
+
+<img class="clouds" style="position:absolute; z-index:2;" src="clouds.png">
+
+<ul class="weather">
+<li id="1"><p>Вчера в 3:56<span>16°</span></p><img src="cloud.png"></li>
+
+<li class="active" id="2"> 
+	<a style="top:0px;" href="#"><p>Сейчас<span class="now">14°</span></p><img src="cloud.png"></a>
+	<ul>
+	<li><p>Утром<span>16°</span></p><img src="sun.png"></li>
+	<li><p>Днем<span>25°</span></p><img src="sun.png"></li>
+	<li><p>Вечером<span>23°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>16°</span></p><img src="moon.png"></li>
+	</ul>
+	<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+<li id="3">
+	<a style="top:10px;" href="#"><p>Сб, 19 сентября<span>23°<b>16°</b></span></p><img src="sun.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+	<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+<li id="4">
+	<a style="top:-20px;" href="#"><p>Вс, 20 сентября<span>29°<b>19°</b></span></p><img src="sun-cloud.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+	<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+<li id="5">
+	<a style="top:20px;" href="#"><p style="border-left:1px solid rgba(255,255,255,0.15); padding-left:20px; margin-left:-20px;">Пн, 21 сентября<span>21°<b>14°</b></span></p><img src="rain.png"></a>
+	<ul>
+		<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+		<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+		<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+		<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+	<div class="info">
+	<p class="main-info">После полудня пройдет небольшой дождь. Не забудьте зонтик.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+
+
+<li id="6">
+	<a style="top:0px;" href="#"><p>Вт, 22 сентября<span>25°<b>15°</b></span></p><img src="sun.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+	<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+<li id="7">
+	<a style="top:-10px;" href="#"><p>Ср, 23 сентября<span>26°<b>16°</b></span></p><img src="sun-cloud.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+			<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+<li id="8">
+	<a style="top:10px;" href="#"><p>Чт, 24 сентября<span>22°<b>13°</b></span></p><img src="bigrain.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+			<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+<li id="9">
+	<a style="top:10px;" href="#"><p>Пт, 25 сентября<span>23°<b>14°</b></span></p><img src="rain.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+			<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+
+<li id="10">
+	<a style="top:0px;" href="#"><p>Сб, 26 сентября<span>25°<b>15°</b></span></p><img src="sun-cloud.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+	<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+<li id="11">
+	<a style="top:10px;" href="#"><p>Вс, 27 сентября<span>20°<b>10°</b></span></p><img src="cloud.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+	<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+<li id="12">
+	<a style="top:20px;" href="#"><p style="border-left:1px solid rgba(255,255,255,0.15); padding-left:20px; margin-left:-20px;">Пн, 28 сентября<span>14°<b>6°</b></span></p><img src="snow.png"></a>
+	<ul>
+	<li><p>Утром<span>12°</span></p><img src="cloud.png"></li>
+	<li><p>Днем<span>21°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Вечером<span>18°</span></p><img src="sun-cloud.png"></li>
+	<li><p>Ночью<span>14°</span></p><img src="moon.png"></li>
+	</ul>
+	<div class="info">
+	<p class="main-info">Начинает холодать. Если вчера было прохладно, одевайтесь теплее.</p>
+	<p class="p1">Вероятность осадков 2%</p>
+	<p class="p2">Ветер: 3,0 м/с ЮВ</p>
+	<p class="p3">6:32</p>
+	<p class="p4">18:30</p>
+	</div>
+</li>
+
+
+</ul>
+
+<ul class="find" style="display:none;">
+<li>
+	<ul>
+	<li><a href="/">Киевская</a></li>
+	<li><b>Харьковская область</b></li>
+	<li><a href="/">Днепропетровская</a></li>
+	<li><a href="/">Житомирская</a></li>
+	<li><a href="/">Львовская</a></li>
+	<li><a href="/">Закарпатская</a></li>
+	<li><a href="/">Запорожская</a></li>
+	<li><a href="/">Кировоградская</a></li>
+	<li><a href="/">Луганская</a></li>
+	<li><a href="/">Николаевская</a></li>
+	</ul>
+</li>
+<li>
+	<ul>
+	<li><b>Главные города</b></li>
+	<li><a href="/">Балаклейский район</a></li>
+	<li><a href="/">Барвенковский</a></li>
+	<li><a href="/">Близнюковский</a></li>
+	<li><a href="/">Богодуховский</a></li>
+	<li><a href="/">Боровский</a></li>
+	<li><a href="/">Валковский</a></li>
+	<li><a href="/">Великобурлукский</a></li>
+	<li><a href="/">Волчанский</a></li>
+	<li><a href="/">Зачепиловский</a></li>
+	<li><a href="/">Змиевской</a></li>
+	<li><a href="/">Золочевский</a></li>
+	<li><a href="/">Кегичёвский</a></li>
+	<li><a href="/">Коломакский</a></li>
+	<li><a href="/">Красноградский</a></li>
+	<li><a href="/">Золочевский</a></li>
+	<li><a href="/">Кегичёвский</a></li>
+	<li><a href="/">Коломакский</a></li>
+	<li><a href="/">Красноградский</a></li>
+	</ul>
+</li>
+<ul>
+	<li><a href="/">Харьков</a></li>
+	<li><a href="/">Изюм</a></li>
+	<li><a href="/">Купянск</a></li>
+	<li><a href="/">Лозовая</a></li>
+	<li><a href="/">Люботин</a></li>
+	<li><a href="/">Первомайский</a></li>
+	<li><a href="/">Чугуев</a></li>
+	<li><a href="/">Балаклея</a></li>
+	<li><a href="/">Барвенково</a></li>
+	<li><a href="/">Богодухов</a></li>
+	<li><a href="/">Валки</a></li>
+	<li><a href="/">Дергачи</a></li>
+	</ul>
+</ul>
+
+
+
+</content>
+
+<footer>
+<p>Создали Т. Г. и С. В. в 2015 году</p>
+</footer>
+
+
+
+  </body>
+</html>
